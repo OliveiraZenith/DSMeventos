@@ -25,7 +25,7 @@ A aplicação deve ser intuitiva, responsiva e com boa experiência de uso.
 ---
 
 ## 🧠 Tecnologias Utilizadas
-- **Frontend:** Next.js, React, CSS (ex: Tailwind CSS ou outra biblioteca de preferência)  
+- **Frontend:** Next.js, React, Tailwind  
 - **Backend (Gateway):** Node.js / Express  
 
 ---

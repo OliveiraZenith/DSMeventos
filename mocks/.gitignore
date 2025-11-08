@@ -1,0 +1,10 @@
+# Ignorar as pastas de dependências de todos os projetos
+node_modules/
+
+# Arquivos de variáveis de ambiente (NUNCA DEVEM SER COMPROMETIDOS!)
+.env
+.env.local
+
+# Logs e caches
+npm-debug.log*
+.DS_Store
