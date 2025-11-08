@@ -4,7 +4,7 @@
 - **Marcos Landi**  
 - **Ana Laura**  
 - **Eduardo**  
-- **Héricles**  
+- **Héricles Mendes**  
 - **Guilherme de Araújo**  
 - **Raul Gonçalves**
 
