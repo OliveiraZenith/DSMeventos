@@ -1,5 +1,5 @@
 # API Gateway Dockerfile for Render
-FROM node:20-alpine
+FROM node:20-alpine AS production
 
 # Set working directory
 WORKDIR /app
