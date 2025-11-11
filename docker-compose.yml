@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      target: production
+    container_name: dsmeventos-api-gateway
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://localhost:3001}
+      - EVENTS_SERVICE_URL=${EVENTS_SERVICE_URL:-http://localhost:3002}
+      - ORDERS_SERVICE_URL=${ORDERS_SERVICE_URL:-http://localhost:3003}
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - dsmeventos-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dsmeventos-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    restart: unless-stopped
+    networks:
+      - dsmeventos-network
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  dsmeventos-network:
+    driver: bridge
+
+volumes:
+  # Add volumes here if needed for persistent data

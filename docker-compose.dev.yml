@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # API Gateway - Development Mode
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      target: development
+    container_name: dsmeventos-api-gateway-dev
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - JWT_SECRET=${JWT_SECRET:-dev_jwt_secret}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://localhost:3001}
+      - EVENTS_SERVICE_URL=${EVENTS_SERVICE_URL:-http://localhost:3002}
+      - ORDERS_SERVICE_URL=${ORDERS_SERVICE_URL:-http://localhost:3003}
+      - NODE_ENV=development
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    restart: unless-stopped
+    networks:
+      - dsmeventos-network
+
+  # Frontend - Development Mode
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: deps
+    container_name: dsmeventos-frontend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    restart: unless-stopped
+    networks:
+      - dsmeventos-network
+    depends_on:
+      - api-gateway
+
+networks:
+  dsmeventos-network:
+    driver: bridge
