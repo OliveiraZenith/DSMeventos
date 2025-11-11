@@ -44,8 +44,6 @@ services:
     restart: unless-stopped
     networks:
       - dsmeventos-network
-    depends_on:
-      - api-gateway
 
 networks:
   dsmeventos-network:

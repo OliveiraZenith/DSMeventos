@@ -1,0 +1,48 @@
+# Render Blueprint for DSMeventos
+# This file can be used to deploy both services to Render
+
+services:
+  # API Gateway Service
+  - type: web
+    name: dsmeventos-api-gateway
+    env: docker
+    dockerfilePath: ./api-gateway/Dockerfile
+    dockerContext: ./api-gateway
+    plan: free # Change to 'starter' or higher for production
+    region: oregon # Change to your preferred region
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: JWT_SECRET
+        generateValue: true # Auto-generates a secure secret
+      - key: AUTH_SERVICE_URL
+        sync: false # Set manually in Render dashboard
+      - key: EVENTS_SERVICE_URL
+        sync: false # Set manually in Render dashboard
+      - key: ORDERS_SERVICE_URL
+        sync: false # Set manually in Render dashboard
+
+  # Frontend Service
+  - type: web
+    name: dsmeventos-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free # Change to 'starter' or higher for production
+    region: oregon # Change to your preferred region
+    branch: main
+    healthCheckPath: /
+    buildCommand: echo "Using Docker build"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_API_URL
+        # Set this to your API Gateway URL after it's deployed
+        # e.g., https://dsmeventos-api-gateway.onrender.com
+        sync: false
