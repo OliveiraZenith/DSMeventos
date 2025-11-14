@@ -22,7 +22,7 @@ services:
       - key: JWT_EXPIRES_IN
         value: 1h
       - key: CORS_ORIGIN
-        sync: false # Set this to your frontend URL after deployed
+        value: https://dsmeventos-frontend.onrender.com
       - key: AUTH_SERVICE_URL
         value: https://dsm-eventos-authservice.onrender.com
       - key: EVENTS_SERVICE_URL
@@ -50,9 +50,7 @@ services:
       - key: PORT
         value: 3000
       - key: NEXT_PUBLIC_API_URL
-        # Set this to your API Gateway URL after it's deployed
-        # e.g., https://dsmeventos-api-gateway.onrender.com
-        sync: false
+        value: https://dsmeventos-api-gateway.onrender.com
       - key: NEXT_PUBLIC_ENV
         value: production
 
