@@ -2,7 +2,9 @@
 // All requests go through the API Gateway
 // Make sure NEXT_PUBLIC_API_URL is configured in .env
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+// Remove trailing slash from API_URL to prevent double slashes
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export const API_URL = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
 // Helper to create headers with authentication
 function getAuthHeaders(token) {
