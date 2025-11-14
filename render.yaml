@@ -32,7 +32,7 @@ services:
       - key: ORDERS_SERVICE_URL
         value: # Leave empty to use mocks
       - key: USE_MOCKS
-        value: false
+        value: true
 
   # Frontend Service
   - type: web
