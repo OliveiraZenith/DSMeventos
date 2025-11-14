@@ -260,18 +260,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-6 sm:py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400 text-sm sm:text-base">
-            © 2025 DSMeventos. Todos os direitos reservados.
-          </p>
-          <p className="text-gray-500 text-xs sm:text-sm mt-2">
-            Plataforma de gerenciamento de eventos
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
