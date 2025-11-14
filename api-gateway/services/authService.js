@@ -13,10 +13,15 @@ const authService = {
       const response = await axios.post(`${AUTH_SERVICE_BASE}/auth/register`, userData);
       return response.data;
     } catch (error) {
-      // Re-throw with proper error structure
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de autenticação. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Registration failed'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao registrar usuário'
       };
     }
   },
@@ -27,9 +32,15 @@ const authService = {
       const response = await axios.post(`${AUTH_SERVICE_BASE}/auth/login`, credentials);
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de autenticação. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Login failed'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao fazer login'
       };
     }
   },
@@ -42,9 +53,15 @@ const authService = {
       });
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de autenticação. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to fetch profile'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao buscar perfil'
       };
     }
   },
@@ -57,9 +74,15 @@ const authService = {
       });
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de autenticação. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to update profile'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao atualizar perfil'
       };
     }
   }

@@ -14,9 +14,16 @@ const eventService = {
       const response = await axios.get(`${EVENT_SERVICE_BASE}/events`, { headers });
       return response.data;
     } catch (error) {
+      // Check if it's a network/connection error (no response from service)
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de eventos. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to fetch events'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao conectar com a API de eventos'
       };
     }
   },
@@ -29,9 +36,15 @@ const eventService = {
       });
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de eventos. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to create event'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao criar evento'
       };
     }
   },
@@ -43,9 +56,15 @@ const eventService = {
       const response = await axios.get(`${EVENT_SERVICE_BASE}/events/${eventId}`, { headers });
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de eventos. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to fetch event'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao buscar evento'
       };
     }
   },
@@ -58,9 +77,15 @@ const eventService = {
       });
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de eventos. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to update event'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao atualizar evento'
       };
     }
   },
@@ -73,13 +98,19 @@ const eventService = {
       });
       // Event service returns 204 No Content on successful delete
       if (response.status === 204) {
-        return { success: true, message: 'Event deleted successfully' };
+        return { success: true, message: 'Evento excluído com sucesso' };
       }
       return response.data;
     } catch (error) {
+      if (!error.response) {
+        throw {
+          status: 503,
+          message: 'Falha ao conectar com a API de eventos. Tente novamente mais tarde.'
+        };
+      }
       throw {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || error.response?.data?.error || 'Failed to delete event'
+        status: error.response.status || 500,
+        message: error.response.data?.message || error.response.data?.error || 'Falha ao excluir evento'
       };
     }
   }
