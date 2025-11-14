@@ -33,11 +33,6 @@ export default function Login() {
         {/* Info Section */}
         <div className="md:w-1/2 bg-gradient-to-br from-gray-800 to-gray-600 text-white p-8 sm:p-10 flex flex-col justify-center">
           <div className="mb-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">DSMeventos</h2>
             <p className="text-sm sm:text-base leading-relaxed text-gray-200">
               Bem-vindo ao DSMeventos. A plataforma completa para você criar, gerenciar e se inscrever nos melhores eventos. Faça seu login ou crie uma conta para participar.
