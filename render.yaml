@@ -5,38 +5,45 @@ services:
   # API Gateway Service
   - type: web
     name: dsmeventos-api-gateway
-    env: docker
-    dockerfilePath: ./api-gateway/Dockerfile
-    dockerContext: ./api-gateway
+    env: node
+    buildCommand: cd api-gateway && npm install
+    startCommand: cd api-gateway && npm start
     plan: free # Change to 'starter' or higher for production
     region: oregon # Change to your preferred region
     branch: main
-    healthCheckPath: /
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 4000
+        value: 5000
       - key: JWT_SECRET
-        generateValue: true # Auto-generates a secure secret
+        value: 8TxBUpTP0MGfXm6KeAt8
+      - key: JWT_EXPIRES_IN
+        value: 1h
+      - key: CORS_ORIGIN
+        sync: false # Set this to your frontend URL after deployed
       - key: AUTH_SERVICE_URL
-        sync: false # Set manually in Render dashboard
+        value: https://dsm-eventos-authservice.onrender.com
       - key: EVENTS_SERVICE_URL
-        sync: false # Set manually in Render dashboard
+        value: https://dsmeventos-events-service.onrender.com
+      - key: NOTIFICATION_SERVICE_URL
+        value: # Leave empty to use mocks
       - key: ORDERS_SERVICE_URL
-        sync: false # Set manually in Render dashboard
+        value: # Leave empty to use mocks
+      - key: USE_MOCKS
+        value: false
 
   # Frontend Service
   - type: web
     name: dsmeventos-frontend
-    env: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm start
     plan: free # Change to 'starter' or higher for production
     region: oregon # Change to your preferred region
     branch: main
     healthCheckPath: /
-    buildCommand: echo "Using Docker build"
     envVars:
       - key: NODE_ENV
         value: production
@@ -46,3 +53,6 @@ services:
         # Set this to your API Gateway URL after it's deployed
         # e.g., https://dsmeventos-api-gateway.onrender.com
         sync: false
+      - key: NEXT_PUBLIC_ENV
+        value: production
+

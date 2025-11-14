@@ -1,6 +1,10 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL 
+// API Client for DSMeventos
+// All requests go through the API Gateway
+// Make sure NEXT_PUBLIC_API_URL is configured in .env
 
-// Helper para criar headers com autenticação
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+
+// Helper to create headers with authentication
 function getAuthHeaders(token) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) {
@@ -38,10 +42,10 @@ export async function login(email, password) {
     const res = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha: password }) // Backend espera 'senha'
+      body: JSON.stringify({ email, senha: password }) // Backend expects 'senha'
     });
 
-    // Lê o corpo da resposta apenas uma vez
+    // Read response body only once
     const text = await res.text();
     
     if (!res.ok) {
@@ -72,10 +76,10 @@ export async function register(name, email, password) {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome: name, email, senha: password }) // Backend espera 'nome' e 'senha'
+      body: JSON.stringify({ nome: name, email, senha: password }) // Backend expects 'nome' and 'senha'
     });
 
-    // Lê o corpo da resposta apenas uma vez
+    // Read response body only once
     const text = await res.text();
     
     if (!res.ok) {
@@ -193,11 +197,11 @@ export async function createEvent(title, description, date, location, token, vag
     method: 'POST',
     headers: getAuthHeaders(token),
     body: JSON.stringify({ 
-      nome: title,           // Mapeia title -> nome
-      descricao: description, // Mapeia description -> descricao
-      data: date,            // Mantém data
-      local: location,       // Mapeia location -> local
-      vagas: vagas           // Adiciona vagas (padrão 50)
+      nome: title,           // Maps title -> nome
+      descricao: description, // Maps description -> descricao
+      data: date,            // Keeps data
+      local: location,       // Maps location -> local
+      vagas: vagas           // Adds vagas (default 50)
     })
   });
 
@@ -242,7 +246,7 @@ export async function deleteEvent(eventId, token) {
     headers: getAuthHeaders(token)
   });
 
-  // DELETE retorna 204 No Content em caso de sucesso
+  // DELETE returns 204 No Content on success
   if (res.status === 204) {
     return { success: true, message: 'Evento deletado com sucesso' };
   }
@@ -252,7 +256,7 @@ export async function deleteEvent(eventId, token) {
     throw new Error(errText || 'Erro ao deletar evento');
   }
 
-  // Caso retorne algum conteúdo
+  // If it returns any content
   return res.json();
 }
 

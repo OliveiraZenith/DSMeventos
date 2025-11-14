@@ -11,7 +11,7 @@
 
 ---
 
-## � Sobre o Projeto
+## 📝 Sobre o Projeto
 
 Sistema de gerenciamento de eventos desenvolvido em arquitetura de microserviços, composto por:
 
@@ -20,12 +20,24 @@ Servidor **Node.js/Express** que atua como ponto de entrada único do sistema:
 - Validação de **JWT** de autenticação
 - Roteamento de requisições para os microserviços corretos
 - Gerenciamento centralizado de segurança
+- Proxy inteligente para serviços backend
+- Suporte a serviços mockados para desenvolvimento
 
 ### 🎨 Frontend
 Interface desenvolvida em **Next.js** que consome apenas o API Gateway:
 - Interface intuitiva e responsiva
 - Experiência de usuário otimizada
 - Design moderno com Tailwind CSS
+
+### 🔄 Integração com Serviços Backend
+
+**Serviços Operacionais**:
+- ✅ **Auth Service**: Autenticação e gerenciamento de usuários (https://dsm-eventos-authservice.onrender.com)
+- ✅ **Event Service**: Gerenciamento completo de eventos (https://dsmeventos-events-service.onrender.com)
+
+**Serviços em Desenvolvimento** (usando mocks):
+- 🔄 **Notification Service**: Sistema de notificações
+- 🔄 **Orders Service**: Gerenciamento de inscrições em eventos
 
 ---
 
@@ -55,42 +67,42 @@ cd DSMeventos
 
 #### 2. Instale as dependências
 ```bash
-# Instalar tudo de uma vez
-make install
-
-# OU manualmente:
+# API Gateway
+cd api-gateway
 npm install
-cd api-gateway && npm install
-cd ../frontend && npm install
+
+# Frontend
+cd ../frontend
+npm install
 ```
 
 #### 3. Configure as variáveis de ambiente
 ```bash
-# Copie o arquivo de exemplo
-cp api-gateway/.env.example api-gateway/.env
+# API Gateway
+cd api-gateway
+cp .env.example .env
+# Edite o .env se necessário (os valores padrão já apontam para os serviços em produção)
 
-# Edite o arquivo .env com suas configurações
+# Frontend
+cd ../frontend
+cp .env.example .env
+# Configure NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
 #### 4. Execute o projeto
 
-**Usando Make (Recomendado):**
+**Executar API Gateway:**
 ```bash
-make dev          # Mocks + Gateway
-make dev-all      # Mocks + Gateway + Frontend
+cd api-gateway
+npm run dev
+# Rodando em http://localhost:5000
 ```
 
-**Usando npm:**
+**Executar Frontend** (em outro terminal):
 ```bash
-npm run dev       # Mocks + Gateway
-npm run dev:all   # Todos os serviços
-```
-
-**Serviços individuais:**
-```bash
-npm run start:gateway   # Apenas Gateway
-npm run start:frontend  # Apenas Frontend
-npm run start:mocks     # Apenas Mocks
+cd frontend
+npm run dev
+# Rodando em http://localhost:3000
 ```
 
 ### 🐳 Usando Docker
@@ -191,13 +203,14 @@ docker-compose down -v
 
 ## 🌐 URLs dos Serviços
 
-| Serviço | Desenvolvimento | Docker |
-|---------|----------------|--------|
-| Frontend | http://localhost:3000 | http://localhost:3000 |
-| API Gateway | http://localhost:4000 | http://localhost:4000 |
-| Mock Auth | http://localhost:3001 | - |
-| Mock Events | http://localhost:3002 | - |
-| Mock Orders | http://localhost:3003 | - |
+| Serviço | Desenvolvimento | Produção |
+|---------|----------------|----------|
+| Frontend | http://localhost:3000 | https://dsmeventos-frontend.onrender.com |
+| API Gateway | http://localhost:5000 | https://dsmeventos-api-gateway.onrender.com |
+| Auth Service | https://dsm-eventos-authservice.onrender.com | (mesmo) |
+| Event Service | https://dsmeventos-events-service.onrender.com | (mesmo) |
+
+**Nota**: Os mocks locais não são mais necessários, pois os serviços reais estão operacionais.
 
 ---
 
@@ -205,20 +218,47 @@ docker-compose down -v
 
 ### API Gateway (api-gateway/.env)
 ```env
+# Configuração do Servidor
+PORT=5000
 NODE_ENV=development
-PORT=4000
-JWT_SECRET=sua_chave_secreta_aqui
-AUTH_SERVICE_URL=http://localhost:3001
-EVENTS_SERVICE_URL=http://localhost:3002
-ORDERS_SERVICE_URL=http://localhost:3003
+
+# Configuração JWT (deve coincidir com o Auth Service)
+JWT_SECRET=8TxBUpTP0MGfXm6KeAt8
+JWT_EXPIRES_IN=1h
+
+# Configuração CORS
+CORS_ORIGIN=http://localhost:3000
+
+# URLs dos Microserviços Backend
+# Auth Service (OPERACIONAL - NÃO MOCKAR)
+AUTH_SERVICE_URL=https://dsm-eventos-authservice.onrender.com
+
+# Event Service (OPERACIONAL - NÃO MOCKAR)
+EVENTS_SERVICE_URL=https://dsmeventos-events-service.onrender.com
+
+# Notification Service (ainda não disponível - usando mocks)
+NOTIFICATION_SERVICE_URL=
+
+# Orders Service (ainda não disponível - usando mocks)
+ORDERS_SERVICE_URL=
+
+# Configuração de Mocks
+USE_MOCKS=false
 ```
 
 ### Frontend (frontend/.env)
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
+# URL do API Gateway
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+# Ambiente
+NEXT_PUBLIC_ENV=development
 ```
 
-⚠️ **Importante**: A variável `NEXT_PUBLIC_API_URL` deve estar disponível em **tempo de build** para o Next.js.
+⚠️ **Importante**: 
+- A variável `NEXT_PUBLIC_API_URL` deve estar disponível em **tempo de build** para o Next.js
+- O `JWT_SECRET` deve ser o mesmo no API Gateway e no Auth Service
+- Use `PORT=5000` para o API Gateway (padrão atualizado)
 
 ---
 
@@ -258,11 +298,15 @@ git push origin main
 3. Adicione variáveis de ambiente:
 ```env
 NODE_ENV=production
-PORT=4000
-JWT_SECRET=<gere_um_segredo_forte>
-AUTH_SERVICE_URL=<url_servico_auth>
-EVENTS_SERVICE_URL=<url_servico_eventos>
-ORDERS_SERVICE_URL=<url_servico_pedidos>
+PORT=5000
+JWT_SECRET=8TxBUpTP0MGfXm6KeAt8
+JWT_EXPIRES_IN=1h
+CORS_ORIGIN=<url_do_frontend>
+AUTH_SERVICE_URL=https://dsm-eventos-authservice.onrender.com
+EVENTS_SERVICE_URL=https://dsmeventos-events-service.onrender.com
+NOTIFICATION_SERVICE_URL=
+ORDERS_SERVICE_URL=
+USE_MOCKS=false
 ```
 
 #### Deploy do Frontend
