@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { createEvent } from '../utils/api';
+import { validateTokenOrRedirect } from '../utils/auth';
 
 export default function CriarEventos() {
   const [title, setTitle] = useState('');
@@ -19,13 +20,8 @@ export default function CriarEventos() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica se o usuário está logado
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-      }
-    }
+    // Verifica se o usuário está logado e se o token é válido
+    validateTokenOrRedirect(router);
   }, [router]);
 
   async function handleSubmit(e) {
@@ -44,15 +40,15 @@ export default function CriarEventos() {
       const location = `${rua}, ${numero} - ${cidade}, ${estado}`;
 
       const newEvent = await createEvent(title, description, date, location, token, parseInt(vagas) || 50);
-      
+
       // Salva o evento criado no localStorage
       const storedEvents = localStorage.getItem('userCreatedEvents');
       const currentEvents = storedEvents ? JSON.parse(storedEvents) : [];
       currentEvents.push(newEvent);
       localStorage.setItem('userCreatedEvents', JSON.stringify(currentEvents));
-      
+
       setSuccess(true);
-      
+
       // Limpa o formulário
       setTitle('');
       setDescription('');
@@ -274,7 +270,7 @@ export default function CriarEventos() {
                   'Criar Evento'
                 )}
               </button>
-              
+
               <Link
                 href="/seus-eventos"
                 className="flex-1 bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300 px-4 sm:px-6 py-3 rounded-lg font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center"

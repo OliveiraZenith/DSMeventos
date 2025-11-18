@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { getUserSubscriptions,  deleteEvent, unsubscribeFromEvent, updateEvent } from '../utils/api';
+import { validateTokenOrRedirect } from '../utils/auth';
 
 export default function SeusEventos() {
   const [createdEvents, setCreatedEvents] = useState([]);
@@ -17,22 +18,18 @@ export default function SeusEventos() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica se o usuário está logado
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-      setIsLoggedIn(true);
+    // Verifica se o usuário está logado e se o token é válido
+    if (!validateTokenOrRedirect(router)) {
+      return;
     }
+    setIsLoggedIn(true);
 
     // Busca os eventos do usuário
     async function fetchUserEvents() {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        
+
         // Busca eventos criados pelo usuário do localStorage
         try {
           const storedEvents = localStorage.getItem('userCreatedEvents');
@@ -74,7 +71,7 @@ export default function SeusEventos() {
     try {
       const token = localStorage.getItem('token');
       await deleteEvent(eventId, token);
-      
+
       // Remove do estado e do localStorage
       const updatedEvents = createdEvents.filter(e => e.id !== eventId);
       setCreatedEvents(updatedEvents);
@@ -84,13 +81,13 @@ export default function SeusEventos() {
     }
   }
 
-  async function handleUnsubscribe(subscriptionId) {
+  async function handleUnsubscribe(eventId) {
     if (!confirm('Tem certeza que deseja cancelar esta inscrição?')) return;
 
     try {
       const token = localStorage.getItem('token');
-      await unsubscribeFromEvent(subscriptionId, token);
-      setSubscribedEvents(subscribedEvents.filter(s => s.id !== subscriptionId));
+      await unsubscribeFromEvent(eventId, token);
+      setSubscribedEvents(subscribedEvents.filter(s => s.eventId !== eventId));
     } catch (err) {
       alert(err.message || 'Erro ao cancelar inscrição');
     }
@@ -117,9 +114,9 @@ export default function SeusEventos() {
     try {
       const token = localStorage.getItem('token');
       const updatedEvent = await updateEvent(editingEvent.id, editForm, token);
-      
+
       // Atualiza o evento na lista e no localStorage
-      const updatedEvents = createdEvents.map(event => 
+      const updatedEvents = createdEvents.map(event =>
         event.id === editingEvent.id ? updatedEvent : event
       );
       setCreatedEvents(updatedEvents);
@@ -215,7 +212,7 @@ export default function SeusEventos() {
                           Ver Evento
                         </Link>
                         <button
-                          onClick={() => handleUnsubscribe(subscription.id)}
+                          onClick={() => handleUnsubscribe(subscription.eventId)}
                           className="sm:w-auto bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-4 py-2.5 rounded-lg transition font-semibold text-sm"
                         >
                           Cancelar
@@ -283,7 +280,7 @@ export default function SeusEventos() {
                           #{event.id}
                         </span>
                       </div>
-                      
+
                       {event.description && (
                         <p className="text-gray-600 mb-4 line-clamp-2 text-sm leading-relaxed">
                           {event.description}

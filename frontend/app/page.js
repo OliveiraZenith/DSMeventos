@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getEvents } from '../utils/api';
+import { getValidToken } from '../utils/auth';
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,11 +14,9 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica se o usuário está logado
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
-    }
+    // Verifica se o usuário está logado e se o token é válido
+    const token = getValidToken();
+    setIsLoggedIn(!!token);
 
     // Busca os eventos da API
     async function fetchEvents() {
@@ -104,7 +103,7 @@ export default function Home() {
               Explore e participe de eventos incríveis
             </p>
           </div>
-          
+
           {/* Loading State */}
           {loading && (
             <div className="text-center py-12">
@@ -167,7 +166,7 @@ export default function Home() {
                         #{event.id}
                       </span>
                     </div>
-                    
+
                     {event.description && (
                       <p className="text-gray-600 mb-4 line-clamp-2 text-sm leading-relaxed">
                         {event.description}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { getValidToken, logout } from '../utils/auth';
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,14 +12,14 @@ export default function Header() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    // Check if token is valid
+    const token = getValidToken();
     setIsLoggedIn(!!token);
-  }, []);
+  }, [pathname]); // Re-check on route changes
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout(router, '/');
     setIsLoggedIn(false);
-    router.push('/');
   };
 
   return (
@@ -29,11 +30,11 @@ export default function Header() {
             <span className="bg-white text-gray-800 rounded-lg px-2 py-1 mr-2">DSM</span>
             <span className="hidden sm:inline">eventos</span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className={`hover:text-gray-300 transition flex items-center space-x-1 ${
                 pathname === '/' ? 'text-white' : ''
               }`}
@@ -43,11 +44,11 @@ export default function Header() {
               </svg>
               <span>Eventos</span>
             </Link>
-            
+
             {isLoggedIn && (
               <>
-                <Link 
-                  href="/seus-eventos" 
+                <Link
+                  href="/seus-eventos"
                   className={`px-3 py-2 rounded-lg font-semibold flex items-center space-x-1 transition ${
                     pathname === '/seus-eventos' ? 'bg-white/10' : 'hover:text-gray-300'
                   }`}
@@ -57,9 +58,9 @@ export default function Header() {
                   </svg>
                   <span>Seus Eventos</span>
                 </Link>
-                
-                <Link 
-                  href="/criar-eventos" 
+
+                <Link
+                  href="/criar-eventos"
                   className={`hover:text-gray-300 transition flex items-center space-x-1 ${
                     pathname === '/criar-eventos' ? 'text-white' : ''
                   }`}
@@ -69,9 +70,9 @@ export default function Header() {
                   </svg>
                   <span>Criar Evento</span>
                 </Link>
-                
-                <Link 
-                  href="/perfil" 
+
+                <Link
+                  href="/perfil"
                   className={`hover:text-gray-300 transition flex items-center space-x-1 ${
                     pathname === '/perfil' ? 'text-white' : ''
                   }`}
@@ -81,7 +82,7 @@ export default function Header() {
                   </svg>
                   <span>Perfil</span>
                 </Link>
-                
+
                 <button
                   onClick={handleLogout}
                   className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition font-semibold shadow-md"
@@ -90,17 +91,17 @@ export default function Header() {
                 </button>
               </>
             )}
-            
+
             {!isLoggedIn && (
               <>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="hover:text-gray-300 transition px-4 py-2 rounded-lg"
                 >
                   Login
                 </Link>
-                <Link 
-                  href="/criar-conta" 
+                <Link
+                  href="/criar-conta"
                   className="bg-white text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-lg transition font-semibold shadow-md"
                 >
                   Criar Conta
@@ -108,9 +109,9 @@ export default function Header() {
               </>
             )}
           </nav>
-          
+
           {/* Mobile menu button */}
-          <button 
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition"
           >
@@ -123,36 +124,36 @@ export default function Header() {
             </svg>
           </button>
         </div>
-        
+
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-gray-700 pt-4 space-y-2">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="block px-4 py-2 hover:bg-white/10 rounded-lg transition"
               onClick={() => setMobileMenuOpen(false)}
             >
               Eventos
             </Link>
-            
+
             {isLoggedIn && (
               <>
-                <Link 
-                  href="/seus-eventos" 
+                <Link
+                  href="/seus-eventos"
                   className="block px-4 py-2 hover:bg-white/10 rounded-lg transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Seus Eventos
                 </Link>
-                <Link 
-                  href="/criar-eventos" 
+                <Link
+                  href="/criar-eventos"
                   className="block px-4 py-2 hover:bg-white/10 rounded-lg transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Criar Evento
                 </Link>
-                <Link 
-                  href="/perfil" 
+                <Link
+                  href="/perfil"
                   className="block px-4 py-2 hover:bg-white/10 rounded-lg transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -169,18 +170,18 @@ export default function Header() {
                 </button>
               </>
             )}
-            
+
             {!isLoggedIn && (
               <>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="block px-4 py-2 hover:bg-white/10 rounded-lg transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
                 </Link>
-                <Link 
-                  href="/criar-conta" 
+                <Link
+                  href="/criar-conta"
                   className="block px-4 py-2 bg-white text-gray-800 hover:bg-gray-100 rounded-lg transition font-semibold"
                   onClick={() => setMobileMenuOpen(false)}
                 >

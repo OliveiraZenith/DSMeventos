@@ -2,6 +2,8 @@
 // All requests go through the API Gateway
 // Make sure NEXT_PUBLIC_API_URL is configured in .env
 
+import { logout } from './auth';
+
 // Remove trailing slash from API_URL to prevent double slashes
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 export const API_URL = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
@@ -15,10 +17,21 @@ function getAuthHeaders(token) {
   return headers;
 }
 
+// Helper to handle API responses and check for 401 errors
+async function handleResponse(res) {
+  // If 401, token is expired or invalid - logout user
+  if (res.status === 401) {
+    logout(null, '/login');
+    throw new Error('Sessão expirada. Por favor, faça login novamente.');
+  }
+
+  return res;
+}
+
 // Helper para mapear dados do backend (PT) para o frontend (EN)
 function mapEventFromBackend(event) {
   if (!event) return null;
-  
+
   return {
     id: event._id || event.id,
     title: event.nome || event.title,
@@ -36,7 +49,7 @@ function mapEventsFromBackend(events) {
 }
 
 // ============================================
-// AUTH 
+// AUTH
 // ============================================
 
 export async function login(email, password) {
@@ -49,7 +62,7 @@ export async function login(email, password) {
 
     // Read response body only once
     const text = await res.text();
-    
+
     if (!res.ok) {
       let errorMessage = 'Erro ao fazer login';
       try {
@@ -83,7 +96,7 @@ export async function register(name, email, password) {
 
     // Read response body only once
     const text = await res.text();
-    
+
     if (!res.ok) {
       let errorMessage = 'Erro ao criar conta';
       try {
@@ -108,7 +121,7 @@ export async function register(name, email, password) {
 }
 
 // ============================================
-// USER 
+// USER
 // ============================================
 
 export async function getUserProfile(token) {
@@ -116,6 +129,8 @@ export async function getUserProfile(token) {
     method: 'GET',
     headers: getAuthHeaders(token)
   });
+
+  await handleResponse(res);
 
   if (!res.ok) {
     const errText = await res.text();
@@ -132,6 +147,8 @@ export async function updateUserProfile(token, data) {
     body: JSON.stringify(data)
   });
 
+  await handleResponse(res);
+
   if (!res.ok) {
     const errText = await res.text();
     throw new Error(errText || 'Erro ao atualizar perfil');
@@ -141,7 +158,7 @@ export async function updateUserProfile(token, data) {
 }
 
 // ============================================
-// EVENTS 
+// EVENTS
 // ============================================
 
 export async function getEvents() {
@@ -198,7 +215,7 @@ export async function createEvent(title, description, date, location, token, vag
   const res = await fetch(`${API_URL}/events`, {
     method: 'POST',
     headers: getAuthHeaders(token),
-    body: JSON.stringify({ 
+    body: JSON.stringify({
       nome: title,           // Maps title -> nome
       descricao: description, // Maps description -> descricao
       data: date,            // Keeps data
@@ -206,6 +223,8 @@ export async function createEvent(title, description, date, location, token, vag
       vagas: vagas           // Adds vagas (default 50)
     })
   });
+
+  await handleResponse(res);
 
   if (!res.ok) {
     const errText = await res.text();
@@ -219,7 +238,7 @@ export async function createEvent(title, description, date, location, token, vag
 
 
 export async function updateEvent(eventId, data, token) {
-  
+
   const mappedData = {};
   if (data.title !== undefined) mappedData.nome = data.title;
   if (data.description !== undefined) mappedData.descricao = data.description;
@@ -232,6 +251,8 @@ export async function updateEvent(eventId, data, token) {
     headers: getAuthHeaders(token),
     body: JSON.stringify(mappedData)
   });
+
+  await handleResponse(res);
 
   if (!res.ok) {
     const errText = await res.text();
@@ -247,6 +268,8 @@ export async function deleteEvent(eventId, token) {
     method: 'DELETE',
     headers: getAuthHeaders(token)
   });
+
+  await handleResponse(res);
 
   // DELETE returns 204 No Content on success
   if (res.status === 204) {
@@ -266,7 +289,7 @@ export async function deleteEvent(eventId, token) {
 
 
 // ============================================
-// ORDERS/SUBSCRIPTIONS 
+// ORDERS/SUBSCRIPTIONS
 // ============================================
 
 export async function subscribeToEvent(eventId, token) {
@@ -276,6 +299,8 @@ export async function subscribeToEvent(eventId, token) {
     body: JSON.stringify({ eventId })
   });
 
+  await handleResponse(res);
+
   if (!res.ok) {
     const errText = await res.text();
     throw new Error(errText || 'Erro ao se inscrever no evento');
@@ -284,11 +309,13 @@ export async function subscribeToEvent(eventId, token) {
   return res.json();
 }
 
-export async function unsubscribeFromEvent(subscriptionId, token) {
-  const res = await fetch(`${API_URL}/orders/subscribe/${subscriptionId}`, {
+export async function unsubscribeFromEvent(eventId, token) {
+  const res = await fetch(`${API_URL}/orders/${eventId}`, {
     method: 'DELETE',
     headers: getAuthHeaders(token)
   });
+
+  await handleResponse(res);
 
   if (!res.ok) {
     const errText = await res.text();
@@ -303,6 +330,8 @@ export async function getUserSubscriptions(token) {
     method: 'GET',
     headers: getAuthHeaders(token)
   });
+
+  await handleResponse(res);
 
   if (!res.ok) {
     const errText = await res.text();

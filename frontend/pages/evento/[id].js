@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { getEventById, subscribeToEvent, getUserSubscriptions } from '../../utils/api';
+import { getValidToken } from '../../utils/auth';
 
 export default function EventoDetalhes() {
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -16,11 +17,9 @@ export default function EventoDetalhes() {
   const [alreadySubscribed, setAlreadySubscribed] = useState(false);
 
   useEffect(() => {
-    // Verifica se o usuário está logado
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
-    }
+    // Verifica se o usuário está logado e se o token é válido
+    const token = getValidToken();
+    setIsLoggedIn(!!token);
 
     // Busca os detalhes do evento
     async function fetchEventDetails() {
@@ -35,9 +34,8 @@ export default function EventoDetalhes() {
         setError('');
 
         // Verifica se o usuário já está inscrito
-        if (isLoggedIn) {
+        if (token) {
           try {
-            const token = localStorage.getItem('token');
             const subscriptions = await getUserSubscriptions(token);
             const isSubscribed = subscriptions.some(sub => sub.eventId === id || sub.eventId === data.id);
             setAlreadySubscribed(isSubscribed);
@@ -55,7 +53,7 @@ export default function EventoDetalhes() {
     }
 
     fetchEventDetails();
-  }, [id, isLoggedIn]);
+  }, [id]);
 
   async function handleSubscribe() {
     if (!isLoggedIn) {
@@ -115,7 +113,7 @@ export default function EventoDetalhes() {
   // Tratamento seguro da data
   let eventDate = null;
   let isUpcoming = false;
-  
+
   try {
     if (event.date) {
       eventDate = new Date(event.date);
@@ -149,8 +147,8 @@ export default function EventoDetalhes() {
                   <h1 className="text-4xl font-bold mb-4">{event.title}</h1>
                   <div className="flex flex-wrap gap-4">
                     <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                      isUpcoming 
-                        ? 'bg-green-500' 
+                      isUpcoming
+                        ? 'bg-green-500'
                         : 'bg-gray-500'
                     }`}>
                       {isUpcoming ? 'Evento Próximo' : 'Evento Finalizado'}
@@ -178,11 +176,11 @@ export default function EventoDetalhes() {
                     {eventDate ? (
                       <>
                         <p className="text-xl font-bold text-gray-800 mt-1">
-                          {eventDate.toLocaleDateString('pt-BR', { 
+                          {eventDate.toLocaleDateString('pt-BR', {
                             weekday: 'long',
-                            day: '2-digit', 
-                            month: 'long', 
-                            year: 'numeric' 
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric'
                           })}
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
@@ -276,7 +274,7 @@ export default function EventoDetalhes() {
                     </span>
                   </div>
                 )}
-                
+
                 <button
                   onClick={() => {
                     if (navigator.share) {

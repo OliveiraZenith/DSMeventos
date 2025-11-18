@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { getUserProfile, getUserSubscriptions, updateUserProfile, unsubscribeFromEvent } from '../utils/api';
+import { validateTokenOrRedirect } from '../utils/auth';
 
 export default function Perfil() {
   const [user, setUser] = useState(null);
@@ -22,13 +23,9 @@ export default function Perfil() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica se o usuário está logado
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
+    // Verifica se o usuário está logado e se o token é válido
+    if (!validateTokenOrRedirect(router)) {
+      return;
     }
 
     // Busca os dados do usuário
@@ -36,7 +33,7 @@ export default function Perfil() {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        
+
         // Busca dados do usuário
         const userData = await getUserProfile(token);
         // Se retornar { success: true, data: {...} }
@@ -55,7 +52,7 @@ export default function Perfil() {
           setSubscriptions([]);
         }
 
-        
+
 
         setError('');
       } catch (err) {
@@ -86,7 +83,7 @@ export default function Perfil() {
     try {
       const token = localStorage.getItem('token');
       const updatedUser = await updateUserProfile(token, editForm);
-      
+
       // Atualiza o estado do usuário
       if (updatedUser.success && updatedUser.data) {
         setUser(updatedUser.data);
@@ -130,9 +127,9 @@ export default function Perfil() {
 
     try {
       const token = localStorage.getItem('token');
-      await updateUserProfile(token, { 
+      await updateUserProfile(token, {
         senhaAtual: passwordForm.senhaAtual,
-        senha: passwordForm.novaSenha 
+        senha: passwordForm.novaSenha
       });
 
       setShowPasswordModal(false);
@@ -146,8 +143,8 @@ export default function Perfil() {
     }
   };
 
-  const handleUnsubscribeClick = (subscriptionId, eventTitle) => {
-    setUnsubscribeModal({ show: true, subscriptionId, eventTitle });
+  const handleUnsubscribeClick = (eventId, eventTitle) => {
+    setUnsubscribeModal({ show: true, subscriptionId: eventId, eventTitle });
   };
 
   const handleUnsubscribeConfirm = async () => {
@@ -158,7 +155,7 @@ export default function Perfil() {
       await unsubscribeFromEvent(unsubscribeModal.subscriptionId, token);
 
       // Remove a inscrição da lista
-      setSubscriptions(subscriptions.filter(sub => sub.id !== unsubscribeModal.subscriptionId));
+      setSubscriptions(subscriptions.filter(sub => sub.eventId !== unsubscribeModal.subscriptionId));
       setUnsubscribeModal({ show: false, subscriptionId: null, eventTitle: '' });
       setError('');
     } catch (err) {
@@ -246,13 +243,13 @@ export default function Perfil() {
 
                 {/* Actions */}
                 <div className="mt-6 space-y-3">
-                  <button 
+                  <button
                     onClick={handleEditClick}
                     className="w-full bg-gray-800 text-white hover:bg-gray-700 px-4 py-3 rounded-lg font-semibold transition"
                   >
                     Editar Perfil
                   </button>
-                  <button 
+                  <button
                     onClick={handlePasswordClick}
                     className="w-full bg-gray-200 text-gray-800 hover:bg-gray-300 px-4 py-3 rounded-lg font-semibold transition"
                   >
@@ -325,8 +322,8 @@ export default function Perfil() {
                           >
                             Ver Evento
                           </Link>
-                          <button 
-                            onClick={() => handleUnsubscribeClick(subscription.id, subscription.eventTitle)}
+                          <button
+                            onClick={() => handleUnsubscribeClick(subscription.eventId, subscription.eventTitle)}
                             className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-md text-sm font-semibold transition"
                           >
                             Cancelar Inscrição
