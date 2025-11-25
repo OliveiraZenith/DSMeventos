@@ -318,11 +318,17 @@ export async function unsubscribeFromEvent(eventId, token) {
 
   await handleResponse(res);
 
+  // DELETE returns 204 No Content on success
+  if (res.status === 204) {
+    return { success: true, message: 'Inscrição cancelada com sucesso' };
+  }
+
   if (!res.ok) {
     const errText = await res.text();
     throw new Error(errText || 'Erro ao cancelar inscrição');
   }
 
+  // If it returns any content
   return res.json();
 }
 

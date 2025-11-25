@@ -30,7 +30,7 @@ services:
       - key: NOTIFICATION_SERVICE_URL
         value: # Leave empty to use mocks
       - key: ORDERS_SERVICE_URL
-        value: # Leave empty to use mocks
+        value: https://dsmeventos-api-gateway-ezau.onrender.com
       - key: USE_MOCKS
         value: false
 
