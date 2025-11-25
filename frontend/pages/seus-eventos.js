@@ -47,9 +47,10 @@ export default function SeusEventos() {
         // Busca inscrições do usuário
         try {
           const subscriptions = await getUserSubscriptions(token);
+          console.log('Subscriptions received:', subscriptions);
           setSubscribedEvents(subscriptions || []);
         } catch (subError) {
-          console.log('Nenhuma inscrição encontrada');
+          console.log('Nenhuma inscrição encontrada', subError);
           setSubscribedEvents([]);
         }
 
@@ -192,7 +193,7 @@ export default function SeusEventos() {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="text-lg sm:text-xl font-bold text-gray-800 flex-1 line-clamp-2">
-                          {subscription.eventTitle || 'Evento'}
+                          {subscription.eventTitle || subscription.eventName || 'Evento'}
                         </h3>
                         <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold ml-2 whitespace-nowrap">
                           Inscrito

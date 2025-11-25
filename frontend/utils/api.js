@@ -345,7 +345,21 @@ export async function getUserSubscriptions(token) {
     throw new Error(errText || 'Erro ao buscar suas inscrições');
   }
 
-  return res.json();
+  const result = await res.json();
+  
+  // Handle different response formats
+  // If response has { success: true, data: [...] }, extract data
+  if (result.success && result.data) {
+    return result.data;
+  }
+  
+  // If it's already an array, return as is
+  if (Array.isArray(result)) {
+    return result;
+  }
+  
+  // Otherwise return empty array
+  return [];
 }
 
 

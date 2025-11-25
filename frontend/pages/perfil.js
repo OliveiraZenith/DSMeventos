@@ -47,8 +47,10 @@ export default function Perfil() {
         // Busca inscrições do usuário
         try {
           const subs = await getUserSubscriptions(token);
+          console.log('Subscriptions received:', subs);
           setSubscriptions(subs || []);
         } catch {
+          console.log('Error fetching subscriptions');
           setSubscriptions([]);
         }
 
@@ -296,7 +298,7 @@ export default function Perfil() {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4 className="text-lg font-bold text-gray-800 mb-2">
-                              {subscription.eventTitle}
+                              {subscription.eventTitle || subscription.eventName || 'Evento'}
                             </h4>
                             <div className="flex items-center gap-4 text-sm text-gray-600">
                               <span className="flex items-center">
@@ -323,7 +325,7 @@ export default function Perfil() {
                             Ver Evento
                           </Link>
                           <button
-                            onClick={() => handleUnsubscribeClick(subscription.eventId, subscription.eventTitle)}
+                            onClick={() => handleUnsubscribeClick(subscription.eventId, subscription.eventTitle || subscription.eventName || 'Evento')}
                             className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-md text-sm font-semibold transition"
                           >
                             Cancelar Inscrição
