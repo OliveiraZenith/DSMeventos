@@ -216,11 +216,12 @@ export async function createEvent(title, description, date, location, token, vag
     method: 'POST',
     headers: getAuthHeaders(token),
     body: JSON.stringify({
-      nome: title,           // Maps title -> nome
-      descricao: description, // Maps description -> descricao
-      data: date,            // Keeps data
-      local: location,       // Maps location -> local
-      vagas: vagas           // Adds vagas (default 50)
+      title: title,
+      descricao: description,
+      date: date,
+      createdBy: "Test",
+      location: location,
+      __v: vagas
     })
   });
 
